@@ -21,11 +21,10 @@ func main() {
 	jar, _ := cookiejar.New(nil)
 	client := &http.Client{
 		Jar: jar,
-		// http.Client follows redirects automatically
 	}
 
+	// Step 1: Login
 	loginURL := "https://springzabdesk.szabist-isb.edu.pk/VerifyLogin.asp?sid=974494673"
-
 	data := url.Values{}
 	data.Set("txtLoginName", username)
 	data.Set("txtPassword", password)
@@ -33,7 +32,18 @@ func main() {
 
 	resp, err := client.PostForm(loginURL, data)
 	if err != nil {
-		fmt.Printf("Request Error: %v\n", err)
+		fmt.Printf("Login Error: %v\n", err)
+		return
+	}
+	resp.Body.Close()
+
+	// Step 2: Access Attendance Page
+	// Note: Use the SID from your previous successful redirect
+	attendanceURL := "https://springzabdesk.szabist-isb.edu.pk/Student/QryCourseAttendance.asp?OptionName=View%20Attendance&sid=974494733"
+
+	resp, err = client.Get(attendanceURL)
+	if err != nil {
+		fmt.Printf("Attendance Fetch Error: %v\n", err)
 		return
 	}
 	defer resp.Body.Close()
@@ -44,8 +54,6 @@ func main() {
 		return
 	}
 
-	fmt.Printf("Final Destination: %s\n", resp.Request.URL.String())
-	fmt.Println("--- Page Content Start ---")
+	fmt.Println("--- Attendance Page Content ---")
 	fmt.Println(string(body))
-	fmt.Println("--- Page Content End ---")
 }
