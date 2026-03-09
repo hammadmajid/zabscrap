@@ -1,13 +1,28 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
 	"os"
+	"regexp"
+	"strings"
 )
+
+type AttendanceRecord struct {
+	Lecture string `json:"lecture"`
+	Date    string `json:"date"`
+	Status  string `json:"status"`
+}
+
+type CourseAttendance struct {
+	CourseName string             `json:"course_name"`
+	Instructor string             `json:"instructor"`
+	Records    []AttendanceRecord `json:"records"`
+}
 
 func main() {
 	if len(os.Args) < 3 {
@@ -15,44 +30,91 @@ func main() {
 		return
 	}
 
-	username := os.Args[1]
-	password := os.Args[2]
-
+	username, password := os.Args[1], os.Args[2]
 	jar, _ := cookiejar.New(nil)
-	client := &http.Client{
-		Jar: jar,
+	client := &http.Client{Jar: jar}
+
+	// 1. Login
+	loginURL := "https://springzabdesk.szabist-isb.edu.pk/VerifyLogin.asp"
+	data := url.Values{
+		"txtLoginName": {username},
+		"txtPassword":  {password},
+		"txtCampus_Id": {"1"},
 	}
-
-	// Session Login
-	loginURL := "https://springzabdesk.szabist-isb.edu.pk/VerifyLogin.asp?sid=974494673"
-	loginData := url.Values{}
-	loginData.Set("txtLoginName", username)
-	loginData.Set("txtPassword", password)
-	loginData.Set("txtCampus_Id", "1")
-
-	resp, err := client.PostForm(loginURL, loginData)
+	resp, err := client.PostForm(loginURL, data)
 	if err != nil {
 		return
 	}
 	resp.Body.Close()
 
-	// Submit form for CSC 2205 Operating Systems
-	attendanceURL := "https://springzabdesk.szabist-isb.edu.pk/Student/QryCourseAttendance.asp?OptionName=View%20Attendance&sid=974494733"
-
-	formData := url.Values{}
-	formData.Set("txtFac", "Fakhar")
-	formData.Set("txtSem", "16227")
-	formData.Set("txtSec", "3")
-	formData.Set("txtCou", "2726")
-
-	resp, err = client.PostForm(attendanceURL, formData)
+	// 2. Get Main Attendance List
+	listURL := "https://springzabdesk.szabist-isb.edu.pk/Student/QryCourseAttendance.asp?OptionName=View%20Attendance"
+	resp, err = client.Get(listURL)
 	if err != nil {
 		return
 	}
-	defer resp.Body.Close()
+	bodyBytes, _ := io.ReadAll(resp.Body)
+	resp.Body.Close()
+	listHTML := string(bodyBytes)
 
-	body, _ := io.ReadAll(resp.Body)
+	// Regex to find chkSubmit('fac','sem','sec','cou')
+	reLinks := regexp.MustCompile(`chkSubmit\('([^']+)','([^']+)','([^']+)','([^']+)'\)`)
+	matches := reLinks.FindAllStringSubmatch(listHTML, -1)
 
-	fmt.Println("--- Course Attendance Detail Content ---")
-	fmt.Println(string(body))
+	var allAttendance []CourseAttendance
+
+	// 3. Iterate through each course
+	for _, match := range matches {
+		fac, sem, sec, cou := match[1], match[2], match[3], match[4]
+
+		formData := url.Values{
+			"txtFac": {fac},
+			"txtSem": {sem},
+			"txtSec": {sec},
+			"txtCou": {cou},
+		}
+
+		resp, err = client.PostForm(listURL, formData)
+		if err != nil {
+			continue
+		}
+		detailBytes, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		detailHTML := string(detailBytes)
+
+		// Parse Detail Data
+		course := CourseAttendance{
+			CourseName: extractTagContent(detailHTML, "Course:", 3),
+			Instructor: extractTagContent(detailHTML, "Instructor:", 3),
+		}
+
+		// Extract Attendance Rows
+		reRow := regexp.MustCompile(`(?s)<tr>\s*<td[^>]*>(\d+)</td>\s*<td[^>]*>([\d/]+)</td>\s*<td[^>]*>\s*([a-zA-Z]+)\s*</td>\s*</tr>`)
+		rowMatches := reRow.FindAllStringSubmatch(detailHTML, -1)
+
+		for _, rm := range rowMatches {
+			course.Records = append(course.Records, AttendanceRecord{
+				Lecture: rm[1],
+				Date:    rm[2],
+				Status:  strings.TrimSpace(rm[3]),
+			})
+		}
+
+		allAttendance = append(allAttendance, course)
+	}
+
+	// 4. Output JSON
+	finalJSON, _ := json.MarshalIndent(allAttendance, "", "  ")
+	fmt.Println(string(finalJSON))
+}
+
+func extractTagContent(html, label string, colspan int) string {
+	pattern := fmt.Sprintf(`(?i)<th[^>]*>%s</th>\s*<td[^>]*>(.*?)</td>`, regexp.QuoteMeta(label))
+	re := regexp.MustCompile(pattern)
+	match := re.FindStringSubmatch(html)
+	if len(match) > 1 {
+		clean := regexp.MustCompile("<[^>]*>").ReplaceAllString(match[1], "")
+		return strings.TrimSpace(clean)
+	}
+	return "Unknown"
 }
