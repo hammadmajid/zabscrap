@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -17,29 +18,34 @@ func main() {
 	username := os.Args[1]
 	password := os.Args[2]
 
-	// Initialize cookie jar to handle session state
 	jar, _ := cookiejar.New(nil)
 	client := &http.Client{
 		Jar: jar,
+		// http.Client follows redirects automatically
 	}
 
 	loginURL := "https://springzabdesk.szabist-isb.edu.pk/VerifyLogin.asp?sid=974494673"
 
-	// Define form data based on HTML input names
 	data := url.Values{}
 	data.Set("txtLoginName", username)
 	data.Set("txtPassword", password)
-	data.Set("txtCampus_Id", "1") // Defaulted to Islamabad per HTML source
+	data.Set("txtCampus_Id", "1")
 
-	// Execute POST request
 	resp, err := client.PostForm(loginURL, data)
 	if err != nil {
-		fmt.Printf("Error: %v\n", err)
+		fmt.Printf("Request Error: %v\n", err)
 		return
 	}
 	defer resp.Body.Close()
 
-	// Check response location or body to verify success
-	fmt.Printf("Status: %s\n", resp.Status)
-	fmt.Printf("Final URL: %s\n", resp.Request.URL.String())
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Printf("Read Error: %v\n", err)
+		return
+	}
+
+	fmt.Printf("Final Destination: %s\n", resp.Request.URL.String())
+	fmt.Println("--- Page Content Start ---")
+	fmt.Println(string(body))
+	fmt.Println("--- Page Content End ---")
 }
