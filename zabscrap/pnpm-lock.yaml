@@ -8,6 +8,9 @@ importers:
 
   .:
     devDependencies:
+      '@cloudflare/playwright':
+        specifier: ^1.1.1
+        version: 1.1.1
       '@eslint/compat':
         specifier: ^2.0.2
         version: 2.0.3(eslint@9.39.4(jiti@2.6.1))
@@ -117,6 +120,9 @@ packages:
   '@cloudflare/kv-asset-handler@0.4.2':
     resolution: {integrity: sha512-SIOD2DxrRRwQ+jgzlXCqoEFiKOFqaPjhnNTGKXSRLvp1HiOvapLaFG2kEr9dYQTYe8rKrd9uvDUzmAITeNyaHQ==}
     engines: {node: '>=18.0.0'}
+
+  '@cloudflare/playwright@1.1.1':
+    resolution: {integrity: sha512-NZtbwe+1HfnDK+8ZW4Ys5bth7/qJOsA5Khvy1oNVbsw1w7p3tC6mrEIyhsvF7ZeRhTb4B5cvkMBB2cxvQpOviA==}
 
   '@cloudflare/unenv-preset@2.15.0':
     resolution: {integrity: sha512-EGYmJaGZKWl+X8tXxcnx4v2bOZSjQeNI5dWFeXivgX9+YCT69AkzHHwlNbVpqtEUTbew8eQurpyOpeN8fg00nw==}
@@ -2026,6 +2032,8 @@ snapshots:
     optional: true
 
   '@cloudflare/kv-asset-handler@0.4.2': {}
+
+  '@cloudflare/playwright@1.1.1': {}
 
   '@cloudflare/unenv-preset@2.15.0(unenv@2.0.0-rc.24)(workerd@1.20260301.1)':
     dependencies:

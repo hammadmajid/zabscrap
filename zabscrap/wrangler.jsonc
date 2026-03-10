@@ -17,6 +17,9 @@
 	},
 	"observability": {
 		"enabled": true
+	},
+	"browser": {
+		"binding": "BROWSER"
 	}
 	/**
 	 * Smart Placement
