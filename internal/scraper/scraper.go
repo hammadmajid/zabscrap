@@ -27,7 +27,7 @@ func New() *Scraper {
 // ScrapeAttendance fetches and parses attendance data from ZabDesk
 func (s *Scraper) ScrapeAttendance(username, password string) ([]models.CourseAttendance, error) {
 	loginURL := "https://springzabdesk.szabist-isb.edu.pk/VerifyLogin.asp"
-	_, err := s.client.PostForm(loginURL, url.Values{
+	resp, err := s.client.PostForm(loginURL, url.Values{
 		"txtLoginName": {username},
 		"txtPassword":  {password},
 		"txtCampus_Id": {"1"},
@@ -35,11 +35,26 @@ func (s *Scraper) ScrapeAttendance(username, password string) ([]models.CourseAt
 	if err != nil {
 		return nil, err
 	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(resp.Body)
 
 	listURL := "https://springzabdesk.szabist-isb.edu.pk/Student/QryCourseAttendance.asp?OptionName=View%20Attendance"
-	resp, _ := s.client.Get(listURL)
-	b, _ := io.ReadAll(resp.Body)
-	err = resp.Body.Close()
+	listResp, err := s.client.Get(listURL)
+	if err != nil {
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(listResp.Body)
+
+	b, err := io.ReadAll(listResp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -49,14 +64,26 @@ func (s *Scraper) ScrapeAttendance(username, password string) ([]models.CourseAt
 
 	var results []models.CourseAttendance
 	for _, m := range matches {
-		dResp, _ := s.client.PostForm(listURL, url.Values{
+		dResp, err := s.client.PostForm(listURL, url.Values{
 			"txtFac": {m[1]}, "txtSem": {m[2]}, "txtSec": {m[3]}, "txtCou": {m[4]},
 		})
-		db, _ := io.ReadAll(dResp.Body)
-		err := dResp.Body.Close()
 		if err != nil {
 			return nil, err
 		}
+
+		db, err := io.ReadAll(dResp.Body)
+		if err != nil {
+			err := dResp.Body.Close()
+			if err != nil {
+				return nil, err
+			}
+			return nil, err
+		}
+
+		if err := dResp.Body.Close(); err != nil {
+			return nil, err
+		}
+
 		dHTML := string(db)
 
 		course := models.CourseAttendance{
