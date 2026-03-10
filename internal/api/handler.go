@@ -34,6 +34,8 @@ func (h *Handler) loadTemplates() {
 }
 
 // Health returns the health status
+//
+//goland:noinspection GoUnusedParameter
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 	_, err := fmt.Fprintf(w, "Status is available")
 	if err != nil {
@@ -43,6 +45,8 @@ func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 }
 
 // ShowForm displays the login form wrapped in layout
+//
+//goland:noinspection GoUnusedParameter
 func (h *Handler) ShowForm(w http.ResponseWriter, r *http.Request) {
 	// Execute form template
 	if err := h.templates.ExecuteTemplate(w, "form", nil); err != nil {

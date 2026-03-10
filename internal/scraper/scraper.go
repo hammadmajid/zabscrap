@@ -27,16 +27,22 @@ func New() *Scraper {
 // ScrapeAttendance fetches and parses attendance data from ZabDesk
 func (s *Scraper) ScrapeAttendance(username, password string) ([]models.CourseAttendance, error) {
 	loginURL := "https://springzabdesk.szabist-isb.edu.pk/VerifyLogin.asp"
-	s.client.PostForm(loginURL, url.Values{
+	_, err := s.client.PostForm(loginURL, url.Values{
 		"txtLoginName": {username},
 		"txtPassword":  {password},
 		"txtCampus_Id": {"1"},
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	listURL := "https://springzabdesk.szabist-isb.edu.pk/Student/QryCourseAttendance.asp?OptionName=View%20Attendance"
 	resp, _ := s.client.Get(listURL)
 	b, _ := io.ReadAll(resp.Body)
-	resp.Body.Close()
+	err = resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
 
 	reLinks := regexp.MustCompile(`chkSubmit\('([^']+)','([^']+)','([^']+)','([^']+)'\)`)
 	matches := reLinks.FindAllStringSubmatch(string(b), -1)
@@ -47,7 +53,10 @@ func (s *Scraper) ScrapeAttendance(username, password string) ([]models.CourseAt
 			"txtFac": {m[1]}, "txtSem": {m[2]}, "txtSec": {m[3]}, "txtCou": {m[4]},
 		})
 		db, _ := io.ReadAll(dResp.Body)
-		dResp.Body.Close()
+		err := dResp.Body.Close()
+		if err != nil {
+			return nil, err
+		}
 		dHTML := string(db)
 
 		course := models.CourseAttendance{
