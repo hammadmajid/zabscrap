@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 	"zabscrap/internal/scraper"
 )
 
@@ -88,5 +89,117 @@ func (h *Handler) FetchAttendance(w http.ResponseWriter, r *http.Request) {
 	h.sendJSON(w, http.StatusOK, JSONResponse{
 		Success: true,
 		Data:    data,
+	})
+}
+
+// BuildInfo returns git commit information from GitHub API
+//
+//goland:noinspection GoUnusedParameter
+func (h *Handler) BuildInfo(w http.ResponseWriter, r *http.Request) {
+	const githubAPI = "https://api.github.com/repos/hammadmajid/zabscrap/commits/main"
+
+	var buildInfo struct {
+		Hash      string `json:"hash"`
+		Message   string `json:"message"`
+		TimeAgo   string `json:"timeAgo"`
+		Available bool   `json:"available"`
+	}
+
+	// Fetch latest commit from GitHub
+	resp, err := http.Get(githubAPI)
+	if err != nil {
+		h.logger.Printf("Failed to fetch GitHub commit info: %v", err)
+		buildInfo.Available = false
+		h.sendJSON(w, http.StatusOK, JSONResponse{
+			Success: true,
+			Data:    buildInfo,
+		})
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		h.logger.Printf("GitHub API returned status: %d", resp.StatusCode)
+		buildInfo.Available = false
+		h.sendJSON(w, http.StatusOK, JSONResponse{
+			Success: true,
+			Data:    buildInfo,
+		})
+		return
+	}
+
+	var githubResponse struct {
+		SHA    string `json:"sha"`
+		Commit struct {
+			Message string `json:"message"`
+			Author  struct {
+				Date string `json:"date"`
+			} `json:"author"`
+		} `json:"commit"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&githubResponse); err != nil {
+		h.logger.Printf("Failed to decode GitHub response: %v", err)
+		buildInfo.Available = false
+		h.sendJSON(w, http.StatusOK, JSONResponse{
+			Success: true,
+			Data:    buildInfo,
+		})
+		return
+	}
+
+	// Extract short hash (first 7 characters)
+	hash := githubResponse.SHA
+	if len(hash) > 7 {
+		hash = hash[:7]
+	}
+
+	// Parse commit time
+	commitTime, err := time.Parse(time.RFC3339, githubResponse.Commit.Author.Date)
+	if err != nil {
+		h.logger.Printf("Failed to parse commit time: %v", err)
+		buildInfo.Available = false
+		h.sendJSON(w, http.StatusOK, JSONResponse{
+			Success: true,
+			Data:    buildInfo,
+		})
+		return
+	}
+
+	// Calculate time ago
+	duration := time.Since(commitTime)
+	var timeAgo string
+
+	if duration.Hours() < 1 {
+		minutes := int(duration.Minutes())
+		if minutes == 1 {
+			timeAgo = "1 minute ago"
+		} else {
+			timeAgo = fmt.Sprintf("%d minutes ago", minutes)
+		}
+	} else if duration.Hours() < 24 {
+		hours := int(duration.Hours())
+		if hours == 1 {
+			timeAgo = "1 hour ago"
+		} else {
+			timeAgo = fmt.Sprintf("%d hours ago", hours)
+		}
+	} else {
+		days := int(duration.Hours() / 24)
+		if days == 1 {
+			timeAgo = "1 day ago"
+		} else {
+			timeAgo = fmt.Sprintf("%d days ago", days)
+		}
+	}
+
+	buildInfo.Hash = hash
+	buildInfo.Message = githubResponse.Commit.Message
+	buildInfo.TimeAgo = timeAgo
+	buildInfo.Available = true
+
+	h.sendJSON(w, http.StatusOK, JSONResponse{
+		Success: true,
+		Data:    buildInfo,
 	})
 }

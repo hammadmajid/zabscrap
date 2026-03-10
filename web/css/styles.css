@@ -226,7 +226,14 @@ body {
 
 #coursesContainer {
     display: grid;
+    grid-template-columns: 1fr;
     gap: 30px;
+}
+
+@media (min-width: 768px) {
+    #coursesContainer {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 .course-card {
@@ -285,19 +292,41 @@ th {
     text-transform: uppercase;
     font-size: 0.9rem;
     letter-spacing: 0.5px;
-    border: var(--neo-border);
-    border-bottom-width: 3px;
+    border-top: var(--neo-border);
+    border-bottom: var(--neo-border);
+    border-left: none;
+    border-right: none;
+}
+
+th:first-child {
+    border-left: var(--neo-border);
+}
+
+th:last-child {
+    border-right: var(--neo-border);
 }
 
 th:not(:last-child) {
-    border-right: none;
+    border-right: var(--neo-border-sm);
 }
 
 td {
     padding: 15px;
-    border-left: var(--neo-border);
-    border-right: var(--neo-border);
+    border-left: none;
+    border-right: none;
     border-bottom: var(--neo-border-sm);
+}
+
+td:first-child {
+    border-left: var(--neo-border);
+}
+
+td:last-child {
+    border-right: var(--neo-border);
+}
+
+td:not(:last-child) {
+    border-right: var(--neo-border-sm);
 }
 
 tbody tr {
@@ -361,6 +390,53 @@ tbody tr:last-child td {
     to {
         transform: translateX(0);
     }
+}
+
+/* Footer */
+.footer {
+    margin-top: 60px;
+    padding: 30px 20px;
+    background: var(--card);
+    border: var(--neo-border);
+    box-shadow: var(--neo-shadow);
+    text-align: center;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-links {
+    margin-bottom: 15px;
+}
+
+.footer-link {
+    color: var(--foreground);
+    text-decoration: none;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    padding: 5px 10px;
+    display: inline-block;
+}
+
+.footer-link:hover {
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.footer-separator {
+    margin: 0 10px;
+    color: var(--muted-foreground);
+}
+
+.footer-build {
+    font-size: 0.85rem;
+    color: var(--muted-foreground);
+    font-family: 'Courier New', monospace;
 }
 
 /* Responsive */

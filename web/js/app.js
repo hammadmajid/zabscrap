@@ -161,7 +161,7 @@ function createAttendanceTable(records) {
             
             row.innerHTML = `
                 <td><strong>${escapeHtml(record.lecture)}</strong></td>
-                <td>${escapeHtml(record.date)}</td>
+                <td>${formatDate(record.date)}</td>
                 <td>
                     <span class="status-badge ${statusClass}">
                         ${escapeHtml(record.status)}
@@ -189,7 +189,50 @@ function escapeHtml(unsafe) {
         .replace(/'/g, "&#039;");
 }
 
+// Utility: Format date to "MMM DD, YY" (e.g., "Jan 12, 26")
+function formatDate(dateString) {
+    if (!dateString) return '';
+    
+    // Try to parse the date
+    const date = new Date(dateString);
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+        return dateString; // Return original if can't parse
+    }
+    
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+    const year = date.getFullYear().toString().slice(-2);
+    
+    return `${month} ${day}, ${year}`;
+}
+
+// Fetch and display build info
+async function loadBuildInfo() {
+    try {
+        const response = await fetch('/api/build-info');
+        const data = await response.json();
+        
+        const buildInfoEl = document.getElementById('buildInfo');
+        
+        if (data.success && data.data.available) {
+            const info = data.data;
+            buildInfoEl.textContent = `Built on ${info.hash} ${info.timeAgo}`;
+        } else {
+            buildInfoEl.textContent = 'Build info unavailable';
+        }
+    } catch (error) {
+        console.error('Failed to load build info:', error);
+        document.getElementById('buildInfo').textContent = 'Build info unavailable';
+    }
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     showView(loginView);
+    loadBuildInfo();
 });

@@ -15,6 +15,7 @@ func SetupRoutes(application *app.App) *chi.Mux {
 
 	// API endpoints
 	router.Post("/fetch", application.Handler.FetchAttendance)
+	router.Get("/api/build-info", application.Handler.BuildInfo)
 
 	// Serve static files from web/ directory
 	fileServer := http.FileServer(http.Dir("web"))
