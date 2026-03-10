@@ -1,20 +1,44 @@
-{{define "content"}}
-<section>
-    <form action="/fetch" method="POST">
-        <fieldset>
-            <legend>ZabDesk Access</legend>
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input id="username" name="username" type="text" required>
+{{define "form"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/terminal.css@0.7.4/dist/terminal.min.css" />
+    <title>Attendance Extraction</title>
+    <style>
+        :root { --page-width: 900px; }
+        .status-absent { color: #ff5555; font-weight: bold; }
+        .status-present { color: #50fa7b; }
+        .course-card { margin-bottom: 40px; border: 1px solid #444; padding: 20px; }
+    </style>
+</head>
+<body class="terminal">
+    <div class="container">
+        <header class="terminal-nav">
+            <div class="terminal-logo">
+                <div class="logo terminal-prompt">DATA_EXTRACT_ATTENDANCE</div>
             </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input id="password" name="password" type="password" required>
-            </div>
-            <div class="form-group">
-                <button class="btn btn-default" type="submit">Parse Attendance</button>
-            </div>
-        </fieldset>
-    </form>
-</section>
+        </header>
+        <section>
+            <form action="/fetch" method="POST">
+                <fieldset>
+                    <legend>ZabDesk Access</legend>
+                    <div class="form-group">
+                        <label for="username">Username:</label>
+                        <input id="username" name="username" type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input id="password" name="password" type="password" required>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-default" type="submit">Parse Attendance</button>
+                    </div>
+                </fieldset>
+            </form>
+        </section>
+    </div>
+</body>
+</html>
 {{end}}

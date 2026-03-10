@@ -1,34 +1,58 @@
-{{define "content"}}
-<section>
-    {{range .}}
-    <div class="course-card">
-        <header>
-            <h2 style="margin-bottom: 0;">{{.CourseName}}</h2>
-            <p style="color: #888;">Instructor: {{.Instructor}}</p>
+{{define "results"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/terminal.css@0.7.4/dist/terminal.min.css" />
+    <title>Attendance Extraction</title>
+    <style>
+        :root { --page-width: 900px; }
+        .status-absent { color: #ff5555; font-weight: bold; }
+        .status-present { color: #50fa7b; }
+        .course-card { margin-bottom: 40px; border: 1px solid #444; padding: 20px; }
+    </style>
+</head>
+<body class="terminal">
+    <div class="container">
+        <header class="terminal-nav">
+            <div class="terminal-logo">
+                <div class="logo terminal-prompt">DATA_EXTRACT_ATTENDANCE</div>
+            </div>
         </header>
-        <table class="terminal-table">
-            <thead>
-                <tr>
-                    <th>Lec #</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{range .Records}}
-                <tr>
-                    <td>{{.Lecture}}</td>
-                    <td>{{.Date}}</td>
-                    <td class="{{if eq .Status "Absent"}}status-absent{{else}}status-present{{end}}">
-                        {{.Status}}
-                    </td>
-                </tr>
-                {{end}}
-            </tbody>
-        </table>
+        <section>
+            {{range .}}
+            <div class="course-card">
+                <header>
+                    <h2 style="margin-bottom: 0;">{{.CourseName}}</h2>
+                    <p style="color: #888;">Instructor: {{.Instructor}}</p>
+                </header>
+                <table class="terminal-table">
+                    <thead>
+                        <tr>
+                            <th>Lec #</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range .Records}}
+                        <tr>
+                            <td>{{.Lecture}}</td>
+                            <td>{{.Date}}</td>
+                            <td class="{{if eq .Status "Absent"}}status-absent{{else}}status-present{{end}}">
+                                {{.Status}}
+                            </td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+            {{end}}
+            <hr>
+            <a href="/" class="btn btn-primary">Return</a>
+        </section>
     </div>
-    {{end}}
-    <hr>
-    <a href="/" class="btn btn-primary">Return</a>
-</section>
+</body>
+</html>
 {{end}}

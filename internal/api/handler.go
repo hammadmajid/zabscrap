@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
-	"zabscrap/internal/models"
 	"zabscrap/internal/scraper"
 )
 
@@ -34,17 +33,6 @@ func (h *Handler) loadTemplates() {
 	}
 }
 
-// renderTemplate renders a template with the given data
-func (h *Handler) renderTemplate(w http.ResponseWriter, templateName string, data interface{}) {
-	if err := h.templates.ExecuteTemplate(w, "layout", map[string]interface{}{
-		"Data":     data,
-		"Template": templateName,
-	}); err != nil {
-		h.logger.Printf("Template execution error: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-	}
-}
-
 // Health returns the health status
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 	_, err := fmt.Fprintf(w, "Status is available")
@@ -54,9 +42,10 @@ func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ShowForm displays the login form
+// ShowForm displays the login form wrapped in layout
 func (h *Handler) ShowForm(w http.ResponseWriter, r *http.Request) {
-	if err := h.templates.ExecuteTemplate(w, "layout", nil); err != nil {
+	// Execute form template
+	if err := h.templates.ExecuteTemplate(w, "form", nil); err != nil {
 		h.logger.Printf("Template execution error: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
@@ -84,12 +73,8 @@ func (h *Handler) FetchAttendance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.renderResultsTemplate(w, data)
-}
-
-// renderResultsTemplate renders the results template with attendance data
-func (h *Handler) renderResultsTemplate(w http.ResponseWriter, data []models.CourseAttendance) {
-	if err := h.templates.ExecuteTemplate(w, "layout", data); err != nil {
+	// Execute results template with data
+	if err := h.templates.ExecuteTemplate(w, "results", data); err != nil {
 		h.logger.Printf("Template execution error: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
