@@ -1,0 +1,20 @@
+{{define "content"}}
+<section>
+    <form action="/fetch" method="POST">
+        <fieldset>
+            <legend>ZabDesk Access</legend>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input id="username" name="username" type="text" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input id="password" name="password" type="password" required>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-default" type="submit">Parse Attendance</button>
+            </div>
+        </fieldset>
+    </form>
+</section>
+{{end}}

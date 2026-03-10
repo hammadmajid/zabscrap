@@ -7,10 +7,10 @@ import (
 
 type App struct {
 	Logger  *log.Logger
-	Handler api.Handler
+	Handler *api.Handler
 }
 
-func NewApp(logger *log.Logger, handler api.Handler) *App {
+func NewApp(logger *log.Logger, handler *api.Handler) *App {
 	return &App{
 		Logger:  logger,
 		Handler: handler,

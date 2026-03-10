@@ -1,0 +1,34 @@
+{{define "content"}}
+<section>
+    {{range .}}
+    <div class="course-card">
+        <header>
+            <h2 style="margin-bottom: 0;">{{.CourseName}}</h2>
+            <p style="color: #888;">Instructor: {{.Instructor}}</p>
+        </header>
+        <table class="terminal-table">
+            <thead>
+                <tr>
+                    <th>Lec #</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Records}}
+                <tr>
+                    <td>{{.Lecture}}</td>
+                    <td>{{.Date}}</td>
+                    <td class="{{if eq .Status "Absent"}}status-absent{{else}}status-present{{end}}">
+                        {{.Status}}
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+    {{end}}
+    <hr>
+    <a href="/" class="btn btn-primary">Return</a>
+</section>
+{{end}}
