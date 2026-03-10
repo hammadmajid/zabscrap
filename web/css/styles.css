@@ -1,0 +1,390 @@
+/* Neobrutalist Design System */
+
+:root {
+    /* Colors using oklch */
+    --background: oklch(0.98 0.01 95);
+    --foreground: oklch(0.15 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.15 0 0);
+    --primary: oklch(0.7 0.18 50);
+    --primary-foreground: oklch(0.15 0 0);
+    --secondary: oklch(0.85 0.15 145);
+    --secondary-foreground: oklch(0.15 0 0);
+    --muted: oklch(0.95 0.02 95);
+    --muted-foreground: oklch(0.4 0 0);
+    --accent: oklch(0.8 0.2 290);
+    --accent-foreground: oklch(0.15 0 0);
+    --destructive: oklch(0.65 0.25 25);
+    --border: oklch(0.15 0 0);
+    --success: oklch(0.75 0.15 145);
+    
+    /* Neobrutalism specific */
+    --neo-shadow: 4px 4px 0px oklch(0.15 0 0);
+    --neo-shadow-sm: 2px 2px 0px oklch(0.15 0 0);
+    --neo-shadow-lg: 6px 6px 0px oklch(0.15 0 0);
+    --neo-border: 3px solid oklch(0.15 0 0);
+    --neo-border-sm: 2px solid oklch(0.15 0 0);
+    
+    --radius: 0px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Space Grotesk', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--background);
+    color: var(--foreground);
+    line-height: 1.6;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px;
+    background: var(--primary);
+    border: var(--neo-border);
+    box-shadow: var(--neo-shadow-lg);
+}
+
+.logo {
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--primary-foreground);
+    letter-spacing: -2px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.tagline {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-foreground);
+}
+
+/* Card Components */
+.card {
+    background: var(--card);
+    border: var(--neo-border);
+    box-shadow: var(--neo-shadow-lg);
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.card-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 25px;
+    color: var(--card-foreground);
+    text-transform: uppercase;
+    letter-spacing: -1px;
+}
+
+.form-card {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    color: var(--foreground);
+    letter-spacing: 0.5px;
+}
+
+.input {
+    width: 100%;
+    padding: 15px;
+    font-size: 1rem;
+    border: var(--neo-border);
+    background: var(--card);
+    box-shadow: var(--neo-shadow);
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.input:focus {
+    outline: none;
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px var(--border);
+}
+
+.input::placeholder {
+    color: #aaa;
+}
+
+/* Buttons */
+.btn {
+    padding: 15px 30px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border: var(--neo-border);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    letter-spacing: 0.5px;
+}
+
+.btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px var(--border);
+}
+
+.btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px var(--border);
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    box-shadow: var(--neo-shadow);
+    width: 100%;
+}
+
+.btn-secondary {
+    background: var(--secondary);
+    color: var(--secondary-foreground);
+    box-shadow: var(--neo-shadow);
+}
+
+/* Views */
+.view {
+    animation: fadeIn 0.3s ease;
+}
+
+.view.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading Spinner */
+.spinner-container {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.spinner {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 30px;
+    border: var(--neo-border);
+    border-top-color: var(--primary);
+    border-right-color: var(--secondary);
+    border-bottom-color: var(--accent);
+    border-left-color: var(--success);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-text {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--foreground);
+    text-transform: uppercase;
+}
+
+/* Results */
+.results-header {
+    margin-bottom: 30px;
+}
+
+#coursesContainer {
+    display: grid;
+    gap: 30px;
+}
+
+.course-card {
+    background: var(--card);
+    border: var(--neo-border);
+    box-shadow: var(--neo-shadow-lg);
+    padding: 0;
+    overflow: hidden;
+}
+
+.course-header {
+    background: var(--secondary);
+    padding: 25px;
+    border-bottom: var(--neo-border);
+}
+
+.course-name {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--secondary-foreground);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+}
+
+.course-instructor {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--secondary-foreground);
+    opacity: 0.8;
+}
+
+.course-body {
+    padding: 25px;
+}
+
+/* Table */
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+thead {
+    background: var(--accent);
+}
+
+th {
+    padding: 15px;
+    text-align: left;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    border: var(--neo-border);
+    border-bottom-width: 3px;
+}
+
+th:not(:last-child) {
+    border-right: none;
+}
+
+td {
+    padding: 15px;
+    border-left: var(--neo-border);
+    border-right: var(--neo-border);
+    border-bottom: var(--neo-border-sm);
+}
+
+tbody tr {
+    background: var(--card);
+    transition: background 0.2s;
+}
+
+tbody tr:hover {
+    background: var(--muted);
+}
+
+tbody tr:last-child td {
+    border-bottom: var(--neo-border);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    border: 2px solid var(--border);
+    letter-spacing: 0.5px;
+}
+
+.status-present {
+    background: var(--success);
+    color: var(--secondary-foreground);
+}
+
+.status-absent {
+    background: var(--destructive);
+    color: var(--card);
+}
+
+/* Toast/Error Messages */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--destructive);
+    color: var(--card);
+    padding: 20px 30px;
+    border: var(--neo-border);
+    box-shadow: var(--neo-shadow-lg);
+    font-weight: 700;
+    font-size: 1rem;
+    max-width: 400px;
+    animation: slideIn 0.3s ease;
+    z-index: 1000;
+}
+
+.toast.hidden {
+    display: none;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .logo {
+        font-size: 2rem;
+    }
+    
+    .card {
+        padding: 20px;
+    }
+    
+    .header {
+        padding: 20px;
+    }
+    
+    th, td {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .toast {
+        right: 20px;
+        left: 20px;
+        bottom: 20px;
+    }
+}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZabScrap - Data Extraction</title>
+    <link rel="stylesheet" href="/web/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="logo">ZABSCRAP</h1>
+            <p class="tagline">ZabDesk Data Extraction Tool</p>
+        </header>
+
+        <!-- Login Form View -->
+        <div id="loginView" class="view">
+            <div class="card form-card">
+                <h2 class="card-title">ZabDesk Login</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username" class="label">Username</label>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="username" 
+                            class="input" 
+                            placeholder="Enter your username"
+                            required
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="label">Password</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            class="input" 
+                            placeholder="Enter your password"
+                            required
+                        >
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        Fetch Data
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Loading View -->
+        <div id="loadingView" class="view hidden">
+            <div class="spinner-container">
+                <div class="spinner"></div>
+                <p class="loading-text">Scraping your data...</p>
+            </div>
+        </div>
+
+        <!-- Results View -->
+        <div id="resultsView" class="view hidden">
+            <div class="results-header">
+                <button id="backBtn" class="btn btn-secondary">Back</button>
+            </div>
+            <div id="coursesContainer"></div>
+        </div>
+
+        <!-- Error Toast -->
+        <div id="errorToast" class="toast hidden">
+            <span id="errorMessage"></span>
+        </div>
+    </div>
+
+    <script src="/web/js/app.js"></script>
+</body>
+</html>

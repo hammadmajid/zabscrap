@@ -1,36 +1,47 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
-	"path/filepath"
 	"zabscrap/internal/scraper"
 )
 
 type Handler struct {
-	logger    *log.Logger
-	scraper   *scraper.Scraper
-	templates *template.Template
+	logger  *log.Logger
+	scraper *scraper.Scraper
 }
 
 func NewHandler(logger *log.Logger) *Handler {
-	h := &Handler{
+	return &Handler{
 		logger:  logger,
 		scraper: scraper.New(),
 	}
-	h.loadTemplates()
-	return h
 }
 
-// loadTemplates loads all template files from internal/templates
-func (h *Handler) loadTemplates() {
-	var err error
-	h.templates, err = template.ParseGlob(filepath.Join("internal/templates", "*.tmpl"))
-	if err != nil {
-		h.logger.Fatalf("Failed to load templates: %v", err)
+// JSONResponse represents the API response structure
+type JSONResponse struct {
+	Success bool        `json:"success"`
+	Data    interface{} `json:"data,omitempty"`
+	Error   string      `json:"error,omitempty"`
+}
+
+// sendJSON sends a JSON response
+func (h *Handler) sendJSON(w http.ResponseWriter, statusCode int, response JSONResponse) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		h.logger.Printf("Error encoding JSON: %v", err)
 	}
+}
+
+// sendError sends an error JSON response
+func (h *Handler) sendError(w http.ResponseWriter, statusCode int, message string) {
+	h.sendJSON(w, statusCode, JSONResponse{
+		Success: false,
+		Error:   message,
+	})
 }
 
 // Health returns the health status
@@ -44,42 +55,38 @@ func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ShowForm displays the login form wrapped in layout
-//
-//goland:noinspection GoUnusedParameter
-func (h *Handler) ShowForm(w http.ResponseWriter, r *http.Request) {
-	// Execute form template
-	if err := h.templates.ExecuteTemplate(w, "form", nil); err != nil {
-		h.logger.Printf("Template execution error: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-	}
-}
-
-// FetchAttendance handles the form submission and displays results
+// FetchAttendance handles the JSON API request for fetching attendance
 func (h *Handler) FetchAttendance(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		h.sendError(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
-	username := r.FormValue("username")
-	password := r.FormValue("password")
+	// Parse JSON request body
+	var reqBody struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
 
-	if username == "" || password == "" {
-		http.Error(w, "Username and password are required", http.StatusBadRequest)
+	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+		h.sendError(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
-	data, err := h.scraper.ScrapeAttendance(username, password)
+	if reqBody.Username == "" || reqBody.Password == "" {
+		h.sendError(w, http.StatusBadRequest, "Username and password are required")
+		return
+	}
+
+	data, err := h.scraper.ScrapeAttendance(reqBody.Username, reqBody.Password)
 	if err != nil {
 		h.logger.Printf("Scraping error: %v", err)
-		http.Error(w, "Failed to fetch attendance data", http.StatusInternalServerError)
+		h.sendError(w, http.StatusInternalServerError, "Failed to fetch attendance data")
 		return
 	}
 
-	// Execute results template with data
-	if err := h.templates.ExecuteTemplate(w, "results", data); err != nil {
-		h.logger.Printf("Template execution error: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-	}
+	h.sendJSON(w, http.StatusOK, JSONResponse{
+		Success: true,
+		Data:    data,
+	})
 }
