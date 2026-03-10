@@ -1,0 +1,13 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o ./tmp/server ./cmd/zabscrap"
+  bin = "tmp/server"
+  full_bin = "PORT=8080 tmp/server"
+  include_ext = ["go"]
+  include_dir = ["internal", "cmd"]
+  exclude_dir = [".idea"]
+  exclude_file = []
+  delay = 1000
+  
